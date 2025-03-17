@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous" />
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/student.css') }}" rel="stylesheet">
+  <title>CRM客户管理系统</title>
+</head>
+
+<body>
+  <div class="container">
+    <h2 class="page-title">CRM客户管理系统</h2>
+    
+    <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="students-tab" data-bs-toggle="tab" data-bs-target="#students" type="button" role="tab" aria-controls="students" aria-selected="true">客户信息</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="add-student-tab" data-bs-toggle="tab" data-bs-target="#add-student" type="button" role="tab" aria-controls="add-student" aria-selected="false">添加客户</button>
+      </li>
+    </ul>
+    
+    <div class="tab-content" id="myTabContent">
+      <!-- 客户信息表格 Tab -->
+      <div class="tab-pane fade show active" id="students" role="tabpanel" aria-labelledby="students-tab">
+        <!-- 添加状态筛选下拉菜单 -->
+        <div class="row mb-3">
+          <div class="col-md-4 ms-auto">
+            <div class="input-group">
+              <label class="input-group-text" for="statusFilter">状态筛选:</label>
+              <select class="form-select" id="statusFilter">
+                <option value="all" selected>全部</option>
+                <option value="active">活跃</option>
+                <option value="inactive">已结课</option>
+                <option value="new">新客户</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        
+        <div class="table-responsive">
+          <table class="table table-hover" id="studentsTable">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">姓名</th>
+                <th scope="col">联系电话</th>
+                <th scope="col">剩余课时</th>
+                <th scope="col">已消耗课时</th>
+                <th scope="col">注册日期</th>
+                <th scope="col">最近上课日期</th>
+                <th scope="col">状态</th>
+                <th scope="col">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- 学生数据将通过JavaScript动态加载 -->
+            </tbody>
+          </table>
+        </div>
+        
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center">
+            <li class="page-item disabled">
+              <a class="page-link" href="#" tabindex="-1" aria-disabled="true">上一页</a>
+            </li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item disabled">
+              <a class="page-link" href="#" aria-disabled="true">下一页</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+      
+      <!-- 添加客户 Tab -->
+      <div class="tab-pane fade" id="add-student" role="tabpanel" aria-labelledby="add-student-tab">
+        <div class="form-container">
+          <form id="studentForm">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="name" class="form-label">姓名</label>
+                <input type="text" class="form-control" id="name" required>
+              </div>
+              <div class="col-md-6">
+                <label for="phone" class="form-label">联系电话</label>
+                <input type="tel" class="form-control" id="phone" required>
+              </div>
+            </div>
+            
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="email" class="form-label">电子邮箱</label>
+                <input type="email" class="form-control" id="email">
+              </div>
+              <div class="col-md-6">
+                <label for="birthdate" class="form-label">出生日期</label>
+                <input type="date" class="form-control" id="birthdate">
+              </div>
+            </div>
+            
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="totalHours" class="form-label">总课时数</label>
+                <input type="number" class="form-control" id="totalHours" required>
+              </div>
+              <div class="col-md-6">
+                <label for="usedHours" class="form-label">已消耗课时</label>
+                <input type="number" class="form-control" id="usedHours" value="0">
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="address" class="form-label">地址</label>
+              <input type="text" class="form-control" id="address">
+            </div>
+            
+            <div class="mb-3">
+              <label for="notes" class="form-label">备注</label>
+              <textarea class="form-control" id="notes" rows="3"></textarea>
+            </div>
+            
+            <div class="mb-3">
+              <label class="form-label">客户状态</label>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="status" id="statusActive" value="active" checked>
+                <label class="form-check-label" for="statusActive">
+                  活跃
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="status" id="statusInactive" value="inactive">
+                <label class="form-check-label" for="statusInactive">
+                  非活跃
+                </label>
+              </div>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              <button type="reset" class="btn btn-secondary me-md-2">重置</button>
+              <button type="submit" class="btn btn-primary">提交</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 编辑个人信息的模态框 -->
+  <div class="modal fade" id="editPersonalModal" tabindex="-1" aria-labelledby="editPersonalModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editPersonalModalLabel">编辑客户信息</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editPersonalForm">
+            <input type="hidden" id="editId">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="editName" class="form-label">姓名</label>
+                <input type="text" class="form-control" id="editName" required>
+              </div>
+              <div class="col-md-6">
+                <label for="editPhone" class="form-label">联系电话</label>
+                <input type="tel" class="form-control" id="editPhone" required>
+              </div>
+            </div>
+            
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="editBirthdate" class="form-label">出生日期</label>
+                <input type="date" class="form-control" id="editBirthdate">
+              </div>
+              <div class="col-md-6">
+                <label for="editTotalHours" class="form-label">总课时数</label>
+                <input type="number" class="form-control" id="editTotalHours" required>
+              </div>
+            </div>
+            
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="editUsedHours" class="form-label">已消耗课时</label>
+                <input type="number" class="form-control" id="editUsedHours" readonly>
+                <small class="form-text text-muted">已消耗课时不可编辑</small>
+              </div>
+              <div class="col-md-6">
+                <label for="editAddress" class="form-label">地址</label>
+                <input type="text" class="form-control" id="editAddress">
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="editNotes" class="form-label">备注</label>
+              <textarea class="form-control" id="editNotes" rows="3"></textarea>
+            </div>
+            
+            <div class="mb-3">
+              <label class="form-label">客户状态</label>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="editStatus" id="editStatusActive" value="active">
+                <label class="form-check-label" for="editStatusActive">
+                  活跃
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="editStatus" id="editStatusInactive" value="inactive">
+                <label class="form-check-label" for="editStatusInactive">
+                  已结课
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="editStatus" id="editStatusNew" value="new">
+                <label class="form-check-label" for="editStatusNew">
+                  新客户
+                </label>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-primary" id="savePersonalBtn">保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 录入上课记录的模态框 -->
+  <div class="modal fade" id="classRecordModal" tabindex="-1" aria-labelledby="classRecordModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="classRecordModalLabel">录入上课记录</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="recordStudentId">
+          <input type="hidden" id="recordStudentName">
+          
+          <!-- 上部分：学习记录输入 -->
+          <div class="mb-4">
+            <h6 class="border-bottom pb-2 mb-3">新增学习记录</h6>
+            <div class="mb-3">
+              <label for="classDate" class="form-label">上课日期</label>
+              <input type="date" class="form-control" id="classDate" required>
+            </div>
+            <div class="mb-3">
+              <label for="classContent" class="form-label">学习内容记录</label>
+              <div id="classContentEditor" style="height: 200px;"></div>
+            </div>
+            <div class="d-flex justify-content-end">
+              <button type="button" class="btn btn-primary" id="saveRecordBtn">保存记录</button>
+            </div>
+          </div>
+          
+          <!-- 下部分：学习记录展示 -->
+          <div>
+            <h6 class="border-bottom pb-2 mb-3">历史学习记录</h6>
+            <div id="recordsList" class="list-group">
+              <!-- 记录将通过JavaScript动态添加 -->
+              <div class="text-center text-muted py-3" id="noRecordsMessage">
+                暂无学习记录
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+  <!-- 引入Quill富文本编辑器 -->
+  <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+  <!-- 引入自定义JS文件 -->
+  <script src="{{ url_for('static', filename='js/student.js') }}"></script>
+</body>
+</html>
