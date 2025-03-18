@@ -12,22 +12,48 @@
 
 <body>
   <div class="container">
-    <h2 class="page-title">CRM客户管理系统</h2>
+    <div class="d-flex justify-content-between align-items-center my-3">
+      <h2 class="page-title">CRM客户管理系统</h2>
+      <div>
+        {% if current_user.is_authenticated %}
+        {% if current_user.username == 'admin' %}
+        <a href="{{ url_for('admin') }}" class="btn btn-outline-primary me-2">用户管理</a>
+        {% endif %}
+        <a href="{{ url_for('logout') }}" class="btn btn-outline-secondary">退出登录</a>
+        {% endif %}
+      </div>
+    </div>
+    
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-info alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
     
     <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
       <li class="nav-item" role="presentation">
         <button class="nav-link active" id="students-tab" data-bs-toggle="tab" data-bs-target="#students" type="button" role="tab" aria-controls="students" aria-selected="true">客户信息</button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="add-student-tab" data-bs-toggle="tab" data-bs-target="#add-student" type="button" role="tab" aria-controls="add-student" aria-selected="false">添加客户</button>
+        <button class="nav-link" id="packages-tab" data-bs-toggle="tab" data-bs-target="#packages" type="button" role="tab" aria-controls="packages" aria-selected="false">课时包管理</button>
       </li>
     </ul>
     
     <div class="tab-content" id="myTabContent">
       <!-- 客户信息表格 Tab -->
       <div class="tab-pane fade show active" id="students" role="tabpanel" aria-labelledby="students-tab">
-        <!-- 添加状态筛选下拉菜单 -->
+        <!-- Add Customer Button -->
         <div class="row mb-3">
+          <div class="col-md-4">
+            <button type="button" class="btn btn-primary" id="openAddCustomerModalBtn" data-bs-toggle="modal" data-bs-target="#addCustomerModal">
+              添加客户
+            </button>
+          </div>
           <div class="col-md-4 ms-auto">
             <div class="input-group">
               <label class="input-group-text" for="statusFilter">状态筛选:</label>
@@ -49,7 +75,7 @@
                 <th scope="col">姓名</th>
                 <th scope="col">联系电话</th>
                 <th scope="col">剩余课时</th>
-                <th scope="col">已消耗课时</th>
+                <th scope="col">已用课时</th>
                 <th scope="col">注册日期</th>
                 <th scope="col">最近上课日期</th>
                 <th scope="col">状态</th>
@@ -63,87 +89,100 @@
         </div>
         
         <nav aria-label="Page navigation">
-          <ul class="pagination justify-content-center">
-            <li class="page-item disabled">
-              <a class="page-link" href="#" tabindex="-1" aria-disabled="true">上一页</a>
-            </li>
-            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-            <li class="page-item disabled">
-              <a class="page-link" href="#" aria-disabled="true">下一页</a>
-            </li>
-          </ul>
+          <div class="d-flex justify-content-between align-items-center my-3">
+            <div class="pagination-info">
+              <small class="text-muted">
+                总共 <span id="totalRecords">0</span> 条记录
+              </small>
+            </div>
+            <ul class="pagination justify-content-center m-0">
+              <li class="page-item disabled">
+                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">上一页</a>
+              </li>
+              <li class="page-item active"><a class="page-link" href="#">1</a></li>
+              <li class="page-item disabled">
+                <a class="page-link" href="#" aria-disabled="true">下一页</a>
+              </li>
+            </ul>
+            <div class="pagination-select">
+              <div class="input-group input-group-sm">
+                <label class="input-group-text" for="perPageSelect">每页显示</label>
+                <select class="form-select form-select-sm" id="perPageSelect">
+                  <option value="10">10</option>
+                  <option value="20" selected>20</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+              </div>
+            </div>
+          </div>
         </nav>
       </div>
       
-      <!-- 添加客户 Tab -->
-      <div class="tab-pane fade" id="add-student" role="tabpanel" aria-labelledby="add-student-tab">
-        <div class="form-container">
-          <form id="studentForm">
-            <div class="row mb-3">
-              <div class="col-md-6">
-                <label for="name" class="form-label">姓名</label>
-                <input type="text" class="form-control" id="name" required>
-              </div>
-              <div class="col-md-6">
-                <label for="phone" class="form-label">联系电话</label>
-                <input type="tel" class="form-control" id="phone" required>
-              </div>
+      <!-- 课时包管理 Tab -->
+      <div class="tab-pane fade" id="packages" role="tabpanel" aria-labelledby="packages-tab">
+        <!-- 添加筛选下拉菜单 -->
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <button type="button" class="btn btn-primary" id="openAddPackageModalBtn">
+              <i class="bi bi-plus-circle"></i> 添加课时包
+            </button>
+          </div>
+          <div class="col-md-4 ms-auto">
+            <div class="input-group">
+              <label class="input-group-text" for="packageStatusFilter">状态筛选:</label>
+              <select class="form-select" id="packageStatusFilter">
+                <option value="all" selected>全部</option>
+                <option value="active">活跃</option>
+                <option value="expired">已过期</option>
+                <option value="used">已用完</option>
+              </select>
             </div>
-            
-            <div class="row mb-3">
-              <div class="col-md-6">
-                <label for="email" class="form-label">电子邮箱</label>
-                <input type="email" class="form-control" id="email">
-              </div>
-              <div class="col-md-6">
-                <label for="birthdate" class="form-label">出生日期</label>
-                <input type="date" class="form-control" id="birthdate">
-              </div>
-            </div>
-            
-            <div class="row mb-3">
-              <div class="col-md-6">
-                <label for="totalHours" class="form-label">总课时数</label>
-                <input type="number" class="form-control" id="totalHours" required>
-              </div>
-              <div class="col-md-6">
-                <label for="usedHours" class="form-label">已消耗课时</label>
-                <input type="number" class="form-control" id="usedHours" value="0">
-              </div>
-            </div>
-            
-            <div class="mb-3">
-              <label for="address" class="form-label">地址</label>
-              <input type="text" class="form-control" id="address">
-            </div>
-            
-            <div class="mb-3">
-              <label for="notes" class="form-label">备注</label>
-              <textarea class="form-control" id="notes" rows="3"></textarea>
-            </div>
-            
-            <div class="mb-3">
-              <label class="form-label">客户状态</label>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="status" id="statusActive" value="active" checked>
-                <label class="form-check-label" for="statusActive">
-                  活跃
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="status" id="statusInactive" value="inactive">
-                <label class="form-check-label" for="statusInactive">
-                  非活跃
-                </label>
-              </div>
-            </div>
-            
-            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-              <button type="reset" class="btn btn-secondary me-md-2">重置</button>
-              <button type="submit" class="btn btn-primary">提交</button>
-            </div>
-          </form>
+          </div>
         </div>
+        
+        <div class="table-responsive">
+          <table class="table table-hover" id="packagesTable">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">课时包名称</th>
+                <th scope="col">总课时</th>
+                <th scope="col">购买日期</th>
+                <th scope="col">过期日期</th>
+                <th scope="col">状态</th>
+                <th scope="col">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- 课时包数据将通过JavaScript动态加载 -->
+            </tbody>
+          </table>
+        </div>
+        
+        <nav aria-label="Page navigation">
+          <div class="d-flex justify-content-between align-items-center my-3">
+            <div class="pagination-info">
+              <small class="text-muted">
+                总共 <span id="totalPackages">0</span> 条记录
+              </small>
+            </div>
+            <ul class="pagination pagination-packages justify-content-center m-0">
+              <!-- 分页控件将通过JavaScript动态生成 -->
+            </ul>
+            <div class="pagination-select">
+              <div class="input-group input-group-sm">
+                <label class="input-group-text" for="packagePerPageSelect">每页显示</label>
+                <select class="form-select form-select-sm" id="packagePerPageSelect">
+                  <option value="10">10</option>
+                  <option value="20" selected>20</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </nav>
       </div>
     </div>
   </div>
@@ -161,36 +200,35 @@
             <input type="hidden" id="editId">
             <div class="row mb-3">
               <div class="col-md-6">
-                <label for="editName" class="form-label">姓名</label>
+                <label for="editName" class="form-label">姓名 <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="editName" required>
               </div>
               <div class="col-md-6">
                 <label for="editPhone" class="form-label">联系电话</label>
-                <input type="tel" class="form-control" id="editPhone" required>
+                <input type="tel" class="form-control" id="editPhone">
               </div>
             </div>
             
             <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="editEmail" class="form-label">电子邮箱</label>
+                <input type="email" class="form-control" id="editEmail">
+              </div>
               <div class="col-md-6">
                 <label for="editBirthdate" class="form-label">出生日期</label>
                 <input type="date" class="form-control" id="editBirthdate">
               </div>
-              <div class="col-md-6">
-                <label for="editTotalHours" class="form-label">总课时数</label>
-                <input type="number" class="form-control" id="editTotalHours" required>
-              </div>
             </div>
             
-            <div class="row mb-3">
-              <div class="col-md-6">
-                <label for="editUsedHours" class="form-label">已消耗课时</label>
-                <input type="number" class="form-control" id="editUsedHours" readonly>
-                <small class="form-text text-muted">已消耗课时不可编辑</small>
-              </div>
-              <div class="col-md-6">
-                <label for="editAddress" class="form-label">地址</label>
-                <input type="text" class="form-control" id="editAddress">
-              </div>
+            <!-- 替换课时字段为提示信息 -->
+            <div class="alert alert-info mb-3">
+              <i class="bi bi-info-circle-fill me-2"></i>
+              课时信息管理已迁移至课时包功能，请使用课消记录按钮来管理课时包和课时消耗。
+            </div>
+            
+            <div class="mb-3">
+              <label for="editAddress" class="form-label">地址</label>
+              <input type="text" class="form-control" id="editAddress">
             </div>
             
             <div class="mb-3">
@@ -245,11 +283,11 @@
           <div class="mb-4">
             <h6 class="border-bottom pb-2 mb-3">新增学习记录</h6>
             <div class="mb-3">
-              <label for="classDate" class="form-label">上课日期</label>
+              <label for="classDate" class="form-label">上课日期 <span class="text-danger">*</span></label>
               <input type="date" class="form-control" id="classDate" required>
             </div>
             <div class="mb-3">
-              <label for="classContent" class="form-label">学习内容记录</label>
+              <label for="classContent" class="form-label">学习内容记录 <span class="text-danger">*</span></label>
               <div id="classContentEditor" style="height: 200px;"></div>
             </div>
             <div class="d-flex justify-content-end">
@@ -270,6 +308,312 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 课消记录的模态框 -->
+  <div class="modal fade" id="courseConsumptionModal" tabindex="-1" aria-labelledby="courseConsumptionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="courseConsumptionModalLabel">课消记录</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="consumptionStudentId">
+          
+          <!-- 上部分：添加课消记录 -->
+          <div class="mb-4">
+            <h6 class="border-bottom pb-2 mb-3">新增课消记录</h6>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">学生姓名</label>
+                <input type="text" class="form-control" id="consumptionStudentName" readonly>
+              </div>
+            </div>
+            
+            <!-- 课时包选择区域 -->
+            <div class="row mb-3">
+              <div class="col-md-12" id="packageSelector">
+                <label class="form-label">选择课时包 <span class="text-danger">*</span></label>
+                <select class="form-select" id="consumptionPackageId">
+                  <option value="">正在加载课时包...</option>
+                </select>
+              </div>
+            </div>
+            
+            <!-- 课时包信息展示 -->
+            <div class="row mb-3" id="selectedPackageInfo">
+              <div class="col-md-4">
+                <label class="form-label">课时包总课时</label>
+                <input type="number" class="form-control" id="consumptionTotalHours" readonly>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">已消耗课时</label>
+                <input type="number" class="form-control" id="consumptionUsedHours" readonly>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">剩余课时</label>
+                <input type="number" class="form-control" id="consumptionRemainingHours" readonly>
+              </div>
+            </div>
+            
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="consumptionHours" class="form-label">本次消耗课时 <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="consumptionHours" min="0.5" step="0.5" value="1" required>
+              </div>
+            </div>
+            <div class="d-flex justify-content-end">
+              <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">取消</button>
+              <button type="button" class="btn btn-primary" id="saveConsumptionBtn">保存课消记录</button>
+            </div>
+          </div>
+          
+          <!-- 下部分：课消记录历史 -->
+          <div>
+            <h6 class="border-bottom pb-2 mb-3">历史课消记录</h6>
+            <div class="table-responsive">
+              <table class="table table-hover table-sm">
+                <thead>
+                  <tr>
+                    <th scope="col">消耗课时</th>
+                    <th scope="col">消耗后剩余</th>
+                    <th scope="col">操作时间</th>
+                    <th scope="col">操作人</th>
+                  </tr>
+                </thead>
+                <tbody id="consumptionRecordsList">
+                  <!-- 课消记录将通过JavaScript动态加载 -->
+                  <tr id="noConsumptionRecordsMessage">
+                    <td colspan="4" class="text-center text-muted py-3">暂无课消记录</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 编辑课时包的模态框 -->
+  <div class="modal fade" id="editPackageModal" tabindex="-1" aria-labelledby="editPackageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editPackageModalLabel">编辑课时包</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editPackageForm">
+            <input type="hidden" id="editPackageId">
+            <input type="hidden" id="editPackageStudentId">
+            
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">学生姓名</label>
+                <input type="text" class="form-control" id="editPackageStudentName" readonly>
+              </div>
+            </div>
+            
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <label for="editPackageTotalHours" class="form-label">总课时 <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="editPackageTotalHours" required min="0" step="0.5">
+              </div>
+              <div class="col-md-4">
+                <label for="editPackageUsedHours" class="form-label">已用课时</label>
+                <input type="number" class="form-control" id="editPackageUsedHours" readonly>
+              </div>
+              <div class="col-md-4">
+                <label for="editPackageRemainingHours" class="form-label">剩余课时</label>
+                <input type="number" class="form-control" id="editPackageRemainingHours" readonly>
+              </div>
+            </div>
+            
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="editPackagePurchaseDate" class="form-label">购买日期 <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" id="editPackagePurchaseDate" required>
+              </div>
+              <div class="col-md-6">
+                <label for="editPackageExpireDate" class="form-label">过期日期</label>
+                <input type="date" class="form-control" id="editPackageExpireDate">
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label class="form-label">状态</label>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="editPackageStatus" id="editPackageStatusActive" value="active">
+                <label class="form-check-label" for="editPackageStatusActive">
+                  活跃
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="editPackageStatus" id="editPackageStatusExpired" value="expired">
+                <label class="form-check-label" for="editPackageStatusExpired">
+                  已过期
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="editPackageStatus" id="editPackageStatusUsed" value="used">
+                <label class="form-check-label" for="editPackageStatusUsed">
+                  已用完
+                </label>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="editPackageNotes" class="form-label">备注</label>
+              <textarea class="form-control" id="editPackageNotes" rows="3"></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-primary" id="savePackageBtn">保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 添加新课时包的模态框 -->
+  <div class="modal fade" id="addPackageModal" tabindex="-1" aria-labelledby="addPackageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addPackageModalLabel">添加新课时包</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="addPackageForm">
+            <div class="row mb-3">
+              <div class="col-md-12">
+                <label for="addPackageStudentSelect" class="form-label">选择学生 <span class="text-danger">*</span></label>
+                <select class="form-select" id="addPackageStudentSelect" required>
+                  <option value="">正在加载学生列表...</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="row mb-3">
+              <div class="col-md-12">
+                <label for="addPackageTotalHours" class="form-label">总课时 <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="addPackageTotalHours" required min="0.5" step="0.5" value="10">
+              </div>
+            </div>
+            
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="addPackagePurchaseDate" class="form-label">购买日期 <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" id="addPackagePurchaseDate" required>
+              </div>
+              <div class="col-md-6">
+                <label for="addPackageExpireDate" class="form-label">过期日期</label>
+                <input type="date" class="form-control" id="addPackageExpireDate">
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="addPackageNotes" class="form-label">备注</label>
+              <textarea class="form-control" id="addPackageNotes" rows="3"></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-primary" id="addNewPackageBtn">添加</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Customer Modal -->
+  <div class="modal fade" id="addCustomerModal" tabindex="-1" aria-labelledby="addCustomerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addCustomerModalLabel">添加客户</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="form-container">
+            <form id="studentForm">
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="name" class="form-label">姓名 <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="name" required>
+                </div>
+                <div class="col-md-6">
+                  <label for="phone" class="form-label">联系电话</label>
+                  <input type="tel" class="form-control" id="phone">
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="email" class="form-label">电子邮箱</label>
+                  <input type="email" class="form-control" id="email">
+                </div>
+                <div class="col-md-6">
+                  <label for="birthdate" class="form-label">出生日期</label>
+                  <input type="date" class="form-control" id="birthdate">
+                </div>
+              </div>
+              <div class="card mb-3">
+                <div class="card-header bg-light">
+                  <h6 class="mb-0">选择课时包</h6>
+                </div>
+                <div class="card-body">
+                  <div class="row mb-3">
+                    <div class="col-md-12">
+                      <label for="coursePackageSelect" class="form-label">课时包 <span class="text-danger">*</span></label>
+                      <select class="form-select" id="coursePackageSelect" required>
+                        <option value="">请选择课时包...</option>
+                        <!-- Options will be dynamically loaded -->
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="address" class="form-label">地址</label>
+                <input type="text" class="form-control" id="address">
+              </div>
+              <div class="mb-3">
+                <label for="notes" class="form-label">备注</label>
+                <textarea class="form-control" id="notes" rows="3"></textarea>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">客户状态</label>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="status" id="statusActive" value="active" checked>
+                  <label class="form-check-label" for="statusActive">
+                    活跃
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="status" id="statusInactive" value="inactive">
+                  <label class="form-check-label" for="statusInactive">
+                    已结课
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="status" id="statusNew" value="new">
+                  <label class="form-check-label" for="statusNew">
+                    新客户
+                  </label>
+                </div>
+              </div>
+              <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="reset" class="btn btn-secondary me-md-2">重置</button>
+                <button type="submit" class="btn btn-primary">提交</button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </div>
