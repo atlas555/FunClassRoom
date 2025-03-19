@@ -449,7 +449,7 @@ const EventHandlers = {
             notes: formData.packageNotes || ''
           };
           
-          return StudentAPI.addPackage(packageData)
+          return PackageAPI.addPackage(packageData)
             .then(() => newStudent);
         }
         

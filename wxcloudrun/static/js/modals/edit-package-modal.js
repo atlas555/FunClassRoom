@@ -4,87 +4,95 @@
 
 // 编辑课时包模态框模块
 const EditPackageModal = {
-  // 初始化模态框
   init: function() {
-    // 绑定保存按钮事件
-    document.getElementById('savePackageBtn').addEventListener('click', () => {
-      this.savePackage();
-    });
+    this.bindEvents();
+  },
+  
+  bindEvents: function() {
+    // 保存课时包信息
+    $('#savePackageBtn').on('click', this.savePackage.bind(this));
     
-    // 监听总课时修改，自动计算剩余课时
-    document.getElementById('editPackageTotalHours').addEventListener('change', () => {
-      this.recalculateRemainingHours();
-    });
+    // 更新总课时时，重新计算剩余课时
+    $('#editPackageTotalHours').on('change', this.recalculateRemainingHours);
     
-    // 绑定表单提交事件（防止回车提交）
-    document.getElementById('editPackageForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      this.savePackage();
+    // 阻止回车提交表单
+    $('#editPackageForm').on('keypress', function(e) {
+      if (e.which === 13) {
+        e.preventDefault();
+        return false;
+      }
     });
   },
   
-  // 重新计算剩余课时
+  // 根据总课时和已用课时重新计算剩余课时
   recalculateRemainingHours: function() {
-    const totalHours = parseFloat(document.getElementById('editPackageTotalHours').value) || 0;
-    const usedHours = parseFloat(document.getElementById('editPackageUsedHours').value) || 0;
-    const remainingHours = Math.max(0, totalHours - usedHours);
+    const totalHours = parseFloat($('#editPackageTotalHours').val()) || 0;
+    const usedHours = parseFloat($('#editPackageUsedHours').val()) || 0;
+    const remainingHours = totalHours - usedHours;
     
-    document.getElementById('editPackageRemainingHours').value = remainingHours;
+    $('#editPackageRemainingHours').val(remainingHours.toFixed(1));
   },
   
   // 保存课时包
   savePackage: function() {
     // 获取表单数据
-    const packageId = document.getElementById('editPackageId').value;
-    const totalHours = parseFloat(document.getElementById('editPackageTotalHours').value);
-    const notes = document.getElementById('editPackageNotes').value.trim();
-    const status = document.querySelector('input[name="editPackageStatus"]:checked')?.value || 'active';
+    const id = $('#editPackageId').val();
+    const name = $('#editPackageName').val().trim();
+    const totalHours = parseFloat($('#editPackageTotalHours').val());
+    const purchaseDate = $('#editPackagePurchaseDate').val();
+    const expireDate = $('#editPackageExpireDate').val() || null;
+    const status = $('input[name="editPackageStatus"]:checked').val() || 'active';
+    const notes = $('#editPackageNotes').val().trim();
     
     // 验证必填字段
-    if (isNaN(totalHours) || totalHours <= 0) {
-      NotificationUtils.showAlert('总课时必须大于0', 'error');
+    if (!name) {
+      NotificationUtils.showAlert('请输入课时包名称', 'error');
       return;
     }
     
-    // if (!purchaseDate) {
-    //   NotificationUtils.showAlert('请选择购买日期', 'error');
-    //   return;
-    // }
+    if (isNaN(totalHours) || totalHours <= 0) {
+      NotificationUtils.showAlert('请输入有效的总课时数', 'error');
+      return;
+    }
     
-    // 构建更新数据
+    if (!purchaseDate) {
+      NotificationUtils.showAlert('请选择购买日期', 'error');
+      return;
+    }
+    
+    // 构造数据对象
     const packageData = {
-      totalHours,
-    //   purchaseDate,
-    //   expireDate: expireDate || null,
-      notes,
-      status
+      name: name,
+      totalHours: totalHours,
+      purchaseDate: purchaseDate,
+      expireDate: expireDate,
+      status: status,
+      notes: notes
     };
     
-    NotificationUtils.showLoading();
+    // 显示加载指示器
+    NotificationUtils.showLoading('#editPackageModal .modal-body', '保存课时包数据中...');
     
     // 调用API更新课时包
-    StudentAPI.updatePackage(packageId, packageData)
-      .then(updatedPackage => {
-        NotificationUtils.showAlert('课时包更新成功', 'success');
-        
+    PackageAPI.updatePackage(id, packageData)
+      .then(() => {
         // 关闭模态框
         const editPackageModal = bootstrap.Modal.getInstance(document.getElementById('editPackageModal'));
         editPackageModal.hide();
         
+        // 显示成功消息
+        NotificationUtils.showAlert('课时包已成功更新', 'success');
+        
         // 重新加载课时包列表
         PackageTable.loadData();
-        
-        // // 如果学生表格也在显示，刷新学生列表
-        // if (document.querySelector('#myTab button.active')?.id === 'students-tab') {
-        //   StudentTable.loadStudents();
-        // }
       })
       .catch(error => {
-        console.error('更新课时包失败:', error);
-        NotificationUtils.showAlert(error.message || '更新课时包失败', 'error');
+        // 显示错误信息
+        NotificationUtils.showAlert('更新课时包失败: ' + error.message, 'error');
       })
       .finally(() => {
-        NotificationUtils.clearLoading();
+        // 清除加载指示器
+        NotificationUtils.clearLoading('#editPackageModal .modal-body');
       });
   }
 }; 

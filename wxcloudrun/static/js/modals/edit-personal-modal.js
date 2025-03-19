@@ -59,7 +59,7 @@ const EditPersonalModal = {
         editPersonalModal.hide();
         
         // 重新加载学生列表
-        StudentTable.loadStudents();
+        StudentTable.refresh();
       })
       .catch(error => {
         console.error('更新客户信息失败:', error);

@@ -39,7 +39,7 @@ function initializeTabSwitching() {
   // 切换到"客户信息"标签页
   document.getElementById('students-tab').addEventListener('click', function(e) {
     e.preventDefault();
-    StudentTable.loadStudents();
+    StudentTable.loadData();
   });
   
   // 切换到"课时包管理"标签页

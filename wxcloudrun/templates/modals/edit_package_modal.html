@@ -18,6 +18,13 @@
           </div>
           
           <div class="row mb-3">
+            <div class="col-md-12">
+              <label for="editPackageName" class="form-label">课时包名称 <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="editPackageName" required placeholder="例如：基础班、进阶班、VIP课程等">
+            </div>
+          </div>
+          
+          <div class="row mb-3">
             <div class="col-md-4">
               <label for="editPackageTotalHours" class="form-label">总课时 <span class="text-danger">*</span></label>
               <input type="number" class="form-control" id="editPackageTotalHours" required min="0" step="0.5">
@@ -49,6 +56,12 @@
               <input class="form-check-input" type="radio" name="editPackageStatus" id="editPackageStatusActive" value="active">
               <label class="form-check-label" for="editPackageStatusActive">
                 活跃
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="editPackageStatus" id="editPackageStatusInactive" value="inactive">
+              <label class="form-check-label" for="editPackageStatusInactive">
+                结束
               </label>
             </div>
             <div class="form-check">

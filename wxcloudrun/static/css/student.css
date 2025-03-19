@@ -64,6 +64,16 @@ body {
   font-weight: 500;
 }
 
+.status-expired {
+  color: #fd7e14;
+  font-weight: 500;
+}
+
+.status-used {
+  color: #6c757d;
+  font-weight: 500;
+}
+
 /* 按钮组样式 */
 .btn-group {
   display: flex;
@@ -74,7 +84,15 @@ body {
 .btn-group .btn {
   flex: 1;
   white-space: nowrap;
-  min-width: 80px;
+  min-width: 40px;
+  padding: 0.25rem 0.5rem;
+}
+
+.btn-group .btn i {
+  font-size: 1rem;
+  display: inline-block;
+  width: 100%;
+  text-align: center;
 }
 
 #statusFilter {

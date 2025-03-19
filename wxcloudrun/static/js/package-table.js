@@ -54,17 +54,18 @@ const PackageTable = {
     // 获取课时包数据
     PackageAPI.getAllPackages(this.state.currentPage, this.state.perPage, this.state.status)
       .then(response => {
+
         // 渲染课时包表格
-        this.renderTable(response.items);
+        this.renderTable(response.data.items);
         
         // 更新分页控件
-        this.updatePagination(response.pagination);
+        this.updatePagination(response.data.pagination);
         
         // 更新总记录数显示
-        $('#packageTotalRecords').text(`共 ${response.pagination.total} 条记录`);
+        $('#packageTotalRecords').text(`共 ${response.data.pagination.total_count} 条记录`);
         
         // 如果没有记录，显示空状态
-        if (response.items.length === 0) {
+        if (response.data.items.length === 0) {
           $('#packagesTable tbody').html(`
             <tr>
               <td colspan="8" class="text-center py-4">
@@ -109,18 +110,17 @@ const PackageTable = {
       } else if (pkg.status === 'expired') {
         statusText = '已过期';
         statusClass = 'status-expired';
-      } else if (pkg.status === 'completed') {
-        statusText = '已用完';
-        statusClass = 'status-completed';
+      } else if (pkg.status === 'inactive') {
+        statusText = '结束';
+        statusClass = 'status-inactive';
       }
       
       // 创建表格行
       const $row = $(`
         <tr data-id="${pkg.id}" data-status="${pkg.status}">
           <th scope="row">${pkg.id}</th>
-          <td>${pkg.studentName}</td>
+          <td>${pkg.name || '未命名课时包'}</td>
           <td>${pkg.totalHours}</td>
-          <td>${pkg.usedHours}</td>
           <td><span class="${statusClass}">${statusText}</span></td>
           <td>
             <div class="btn-group" role="group">
@@ -220,7 +220,20 @@ const PackageTable = {
       .then(packageData => {
         // 填充表单
         $('#editPackageId').val(packageData.id);
+        $('#editPackageName').val(packageData.name || '');
         $('#editPackageTotalHours').val(packageData.totalHours);
+
+        // 设置状态
+        if (packageData.status === 'active') {
+          $('#editPackageStatusActive').prop('checked', true);
+        } else if (packageData.status === 'inactive') {
+          $('#editPackageStatusInactive').prop('checked', true);
+        } else if (packageData.status === 'expired') {
+          $('#editPackageStatusExpired').prop('checked', true);
+        } else if (packageData.status === 'used') {
+          $('#editPackageStatusUsed').prop('checked', true);
+        }
+        
         $('#editPackageNotes').val(packageData.notes || '');
         
         // 清除加载指示器
@@ -235,76 +248,6 @@ const PackageTable = {
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>
         `);
-      });
-  },
-  
-  // 保存编辑后的课时包
-  saveEditedPackage: function() {
-    // 获取表单数据
-    const packageId = parseInt($('#editPackageId').val());
-    const packageData = {
-      totalHours: parseFloat($('#editPackageTotalHours').val()),
-      notes: $('#editPackageNotes').val()
-    };
-    
-    // 验证输入
-    if (!packageData.totalHours || packageData.totalHours <= 0) {
-      NotificationUtils.showModalAlert('#editPackageModal', 'danger', '请输入有效的总课时数');
-      return;
-    }
-    
-    // 禁用保存按钮，显示加载状态
-    const $saveBtn = $('#saveEditPackageBtn');
-    const originalText = $saveBtn.text();
-    $saveBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 保存中...');
-    
-    // 调用API更新课时包
-    PackageAPI.updatePackage(packageId, packageData)
-      .then(updatedPackage => {
-        // 更新表格中对应的行
-        const $row = $(`#packagesTable tbody tr[data-id="${packageId}"]`);
-        
-        if ($row.length) {
-          $row.find('td:eq(1)').text(updatedPackage.totalHours);
-        
-          // 更新状态
-          let statusText = '';
-          let statusClass = '';
-          
-          if (updatedPackage.status === 'active') {
-            statusText = '有效';
-            statusClass = 'status-active';
-          } else if (updatedPackage.status === 'expired') {
-            statusText = '已过期';
-            statusClass = 'status-expired';
-          } else if (updatedPackage.status === 'completed') {
-            statusText = '已用完';
-            statusClass = 'status-completed';
-          }
-          
-          $row.find('td:eq(6)').html(`<span class="${statusClass}">${statusText}</span>`);
-          $row.attr('data-status', updatedPackage.status);
-        }
-        
-        // 显示成功消息
-        NotificationUtils.showModalAlert('#editPackageModal', 'success', '课时包更新成功！');
-        
-        // 关闭模态框
-        setTimeout(() => {
-          const editModal = bootstrap.Modal.getInstance(document.getElementById('editPackageModal'));
-          editModal.hide();
-          
-          // 刷新课时包列表
-          this.loadData();
-        }, 1500);
-      })
-      .catch(error => {
-        // 显示错误信息
-        NotificationUtils.showModalAlert('#editPackageModal', 'danger', `更新课时包失败: ${error.message}`);
-      })
-      .finally(() => {
-        // 恢复保存按钮状态
-        $saveBtn.prop('disabled', false).text(originalText);
       });
   },
   

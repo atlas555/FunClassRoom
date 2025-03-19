@@ -9,15 +9,33 @@
         <form id="addPackageForm">
           <div class="row mb-3">
             <div class="col-md-12">
+              <label for="addPackageName" class="form-label">课时包名称 <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="addPackageName" required placeholder="例如：基础班、进阶班、VIP课程等">
+            </div>
+          </div>
+          
+          <div class="row mb-3">
+            <div class="col-md-12">
               <label for="addPackageTotalHours" class="form-label">总课时 <span class="text-danger">*</span></label>
               <input type="number" class="form-control" id="addPackageTotalHours" required min="0.5" step="0.5" value="10">
             </div>
           </div>
           
           <div class="row mb-3">
-            <div class="col-md-6">
-              <label for="addPackagePurchaseDate" class="form-label">购买日期 <span class="text-danger">*</span></label>
-              <input type="date" class="form-control" id="addPackagePurchaseDate" required>
+            <div class="col-md-12">
+              <label class="form-label">状态</label>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="addPackageStatus" id="addPackageStatusActive" value="active" checked>
+                <label class="form-check-label" for="addPackageStatusActive">
+                  活跃
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="addPackageStatus" id="addPackageStatusInactive" value="inactive">
+                <label class="form-check-label" for="addPackageStatusInactive">
+                  结束
+                </label>
+              </div>
             </div>
           </div>
           

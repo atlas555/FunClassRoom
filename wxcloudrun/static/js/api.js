@@ -43,6 +43,7 @@ const handleApiRequest = async (url, options = {}) => {
     
     // 解析并返回响应数据
     return await response.json();
+    // return await response;
   } catch (error) {
     console.error('API请求错误:', error);
     throw error;
@@ -74,7 +75,7 @@ const StudentAPI = {
       }
     });
     
-    return handleApiRequest(`${API_BASE_URL}/students`, {
+    return handleApiRequest(`${API_BASE_URL}/students/add`, {
       method: 'POST',
       body: JSON.stringify(data)
     });
@@ -160,14 +161,7 @@ const PackageAPI = {
     // 处理特殊字段
     const data = { ...packageData };
     
-    // 确保日期字段有值或为null
-    ['purchaseDate', 'expireDate'].forEach(field => {
-      if (data[field] === '') {
-        data[field] = null;
-      }
-    });
-    
-    return handleApiRequest(`${API_BASE_URL}/packages`, {
+    return handleApiRequest(`${API_BASE_URL}/packages/add`, {
       method: 'POST',
       body: JSON.stringify(data)
     });
@@ -177,13 +171,6 @@ const PackageAPI = {
   updatePackage: (packageId, packageData) => {
     // 处理特殊字段
     const data = { ...packageData };
-    
-    // 确保日期字段有值或为null
-    ['purchaseDate', 'expireDate'].forEach(field => {
-      if (data[field] === '') {
-        data[field] = null;
-      }
-    });
     
     return handleApiRequest(`${API_BASE_URL}/packages/${packageId}`, {
       method: 'PUT',

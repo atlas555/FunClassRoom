@@ -120,7 +120,7 @@ const ConsumptionRecordModal = {
         this.loadPackageDetails(packageId);
         
         // 刷新学生表格（更新剩余课时显示）
-        StudentTable.loadStudents();
+        StudentTable.refresh();
       })
       .catch(error => {
         console.error('添加课消记录失败:', error);

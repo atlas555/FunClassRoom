@@ -107,31 +107,15 @@ def api_get_all_students():
         # 转换为JSON格式
         result = []
         for student in students:
-            # 获取学生关联的所有课时包
-            student_packages = StudentCoursePackage.query.filter_by(student_id=student.id).all()
-            
-            # 计算总课时、已用课时和剩余课时
-            total_hours = 0
-            used_hours = 0
-            remaining_hours = 0
-            
-            for package in student_packages:
-                # 获取基础课时包总课时
-                course_package = CoursePackage.query.get(package.course_package_id)
-                if course_package:
-                    total_hours += course_package.total_hours
-                    used_hours += package.used_hours
-                    remaining_hours += package.remaining_hours
-            
             result.append({
                 'id': student.id,
                 'name': student.name,
                 'phone': student.phone or '',
                 'email': student.email or '',
                 'birthdate': student.birthdate.strftime('%Y-%m-%d') if student.birthdate else '',
-                'remainingHours': remaining_hours,
-                'usedHours': used_hours,
-                'totalHours': total_hours,
+                'remainingHours': student.remaining_hours,
+                'usedHours': student.used_hours,
+                'totalHours': student.total_hours,
                 'registerDate': student.register_date.strftime('%Y-%m-%d') if student.register_date else datetime.now().strftime('%Y-%m-%d'),
                 'lastClassDate': student.last_class_date.strftime('%Y-%m-%d') if student.last_class_date else '',
                 'address': student.address or '',
@@ -166,22 +150,6 @@ def api_get_student(student_id):
         if not student:
             return make_err_response('学生不存在')
         
-        # 获取学生关联的所有课时包
-        student_packages = StudentCoursePackage.query.filter_by(student_id=student_id).all()
-        
-        # 计算总课时、已用课时和剩余课时
-        total_hours = 0
-        used_hours = 0
-        remaining_hours = 0
-        
-        for package in student_packages:
-            # 获取基础课时包总课时
-            course_package = CoursePackage.query.get(package.course_package_id)
-            if course_package:
-                total_hours += course_package.total_hours
-                used_hours += package.used_hours
-                remaining_hours += package.remaining_hours
-        
         # 转换为JSON格式
         result = {
             'id': student.id,
@@ -189,9 +157,9 @@ def api_get_student(student_id):
             'phone': student.phone or '',
             'email': student.email or '',
             'birthdate': student.birthdate.strftime('%Y-%m-%d') if student.birthdate else '',
-            'remainingHours': remaining_hours,
-            'usedHours': used_hours,
-            'totalHours': total_hours,
+            'remainingHours': student.remaining_hours,
+            'usedHours': student.used_hours,
+            'totalHours': student.total_hours,
             'registerDate': student.register_date.strftime('%Y-%m-%d') if student.register_date else datetime.now().strftime('%Y-%m-%d'),
             'lastClassDate': student.last_class_date.strftime('%Y-%m-%d') if student.last_class_date else '',
             'address': student.address or '',
@@ -206,7 +174,7 @@ def api_get_student(student_id):
         return make_err_response(f'获取学生信息失败: {str(e)}')
 
 
-@app.route('/api/students', methods=['POST'])
+@app.route('/api/students/add', methods=['POST'])
 @login_required
 def api_add_student():
     """添加新学生"""
@@ -309,9 +277,6 @@ def api_update_student(student_id):
         if 'name' in data and not data['name']:
             return make_err_response('姓名不能为空')
         
-        # 注意：不再从API直接更新课时信息，这些数据现在从课时包中获取
-        # 移除与课时有关的验证逻辑
-        
         # 转换前端驼峰命名为后端下划线命名
         student_data = {}
         if 'name' in data:
@@ -334,16 +299,6 @@ def api_update_student(student_id):
         
         if not student:
             return make_err_response('学生不存在或更新失败')
-        
-        # 从CoursePackage模型中获取课时信息
-        total_hours = db.session.query(func.sum(CoursePackage.total_hours))\
-            .filter(CoursePackage.student_id == student_id).scalar() or 0
-        
-        used_hours = db.session.query(func.sum(CoursePackage.used_hours))\
-            .filter(CoursePackage.student_id == student_id).scalar() or 0
-        
-        remaining_hours = db.session.query(func.sum(CoursePackage.remaining_hours))\
-            .filter(CoursePackage.student_id == student_id).scalar() or 0
             
         # 转换为JSON格式
         result = {
@@ -352,9 +307,9 @@ def api_update_student(student_id):
             'phone': student.phone or '',
             'email': student.email or '',
             'birthdate': student.birthdate.strftime('%Y-%m-%d') if student.birthdate else '',
-            'remainingHours': remaining_hours,
-            'usedHours': used_hours,
-            'totalHours': total_hours,
+            'remainingHours': student.remaining_hours,
+            'usedHours': student.used_hours,
+            'totalHours': student.total_hours,
             'registerDate': student.register_date.strftime('%Y-%m-%d') if student.register_date else datetime.now().strftime('%Y-%m-%d'),
             'lastClassDate': student.last_class_date.strftime('%Y-%m-%d') if student.last_class_date else '',
             'address': student.address or '',
@@ -832,7 +787,7 @@ def get_package_api(package_id):
     except Exception as e:
         return make_err_response(f"获取课时包信息失败: {str(e)}")
 
-@app.route('/api/packages', methods=['POST'])
+@app.route('/api/packages/add', methods=['POST'])
 @login_required
 def add_package_api():
     """添加新课时包"""
@@ -951,7 +906,7 @@ def get_all_packages_api():
             result.append({
                 'id': package.id,
                 'name': package.name,
-                'total_hours': package.total_hours,
+                'totalHours': package.total_hours,
                 'status': package.status,
                 'notes': package.notes or '',
                 'created_at': package.created_at.isoformat(),
