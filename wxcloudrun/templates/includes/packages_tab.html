@@ -1,0 +1,59 @@
+<!-- 添加筛选下拉菜单 -->
+<div class="row mb-3">
+  <div class="col-md-4">
+    <button type="button" class="btn btn-primary" id="openAddPackageModalBtn">
+      <i class="bi bi-plus-circle"></i> 添加课时包
+    </button>
+  </div>
+  <div class="col-md-4 ms-auto">
+    <div class="input-group">
+      <label class="input-group-text" for="packageStatusFilter">状态筛选:</label>
+      <select class="form-select" id="packageStatusFilter">
+        <option value="all" selected>全部</option>
+        <option value="active">活跃</option>
+        <option value="expired">已过期</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-hover" id="packagesTable">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">课时包名称</th>
+        <th scope="col">总课时</th>
+        <th scope="col">状态</th>
+        <th scope="col">操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- 课时包数据将通过JavaScript动态加载 -->
+    </tbody>
+  </table>
+</div>
+
+<nav aria-label="Page navigation">
+  <div class="d-flex justify-content-between align-items-center my-3">
+    <div class="pagination-info">
+      <small class="text-muted">
+        总共 <span id="totalPackages">0</span> 条记录
+      </small>
+    </div>
+    <ul class="pagination pagination-packages justify-content-center m-0">
+      <!-- 分页控件将通过JavaScript动态生成 -->
+    </ul>
+    <div class="pagination-select">
+      <div class="input-group input-group-sm">
+        <label class="input-group-text" for="packagePerPageSelect">每页显示</label>
+        <select class="form-select form-select-sm" id="packagePerPageSelect">
+          <option value="10">10</option>
+          <option value="20" selected>20</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</nav> 

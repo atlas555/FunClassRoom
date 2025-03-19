@@ -1,0 +1,20 @@
+<ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="students-tab" data-bs-toggle="tab" data-bs-target="#students" type="button" role="tab" aria-controls="students" aria-selected="true">客户信息</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="packages-tab" data-bs-toggle="tab" data-bs-target="#packages" type="button" role="tab" aria-controls="packages" aria-selected="false">课时包管理</button>
+  </li>
+</ul>
+    
+<div class="tab-content" id="myTabContent">
+  <!-- 客户信息表格 Tab -->
+  <div class="tab-pane fade show active" id="students" role="tabpanel" aria-labelledby="students-tab">
+    {% include 'includes/students_tab.html' %}
+  </div>
+  
+  <!-- 课时包管理 Tab -->
+  <div class="tab-pane fade" id="packages" role="tabpanel" aria-labelledby="packages-tab">
+    {% include 'includes/packages_tab.html' %}
+  </div>
+</div> 

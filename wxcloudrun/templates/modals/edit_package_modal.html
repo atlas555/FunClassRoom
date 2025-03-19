@@ -1,0 +1,80 @@
+<div class="modal fade" id="editPackageModal" tabindex="-1" aria-labelledby="editPackageModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editPackageModalLabel">编辑课时包</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editPackageForm">
+          <input type="hidden" id="editPackageId">
+          <input type="hidden" id="editPackageStudentId">
+          
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label">学生姓名</label>
+              <input type="text" class="form-control" id="editPackageStudentName" readonly>
+            </div>
+          </div>
+          
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <label for="editPackageTotalHours" class="form-label">总课时 <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" id="editPackageTotalHours" required min="0" step="0.5">
+            </div>
+            <div class="col-md-4">
+              <label for="editPackageUsedHours" class="form-label">已用课时</label>
+              <input type="number" class="form-control" id="editPackageUsedHours" readonly>
+            </div>
+            <div class="col-md-4">
+              <label for="editPackageRemainingHours" class="form-label">剩余课时</label>
+              <input type="number" class="form-control" id="editPackageRemainingHours" readonly>
+            </div>
+          </div>
+          
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="editPackagePurchaseDate" class="form-label">购买日期 <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" id="editPackagePurchaseDate" required>
+            </div>
+            <div class="col-md-6">
+              <label for="editPackageExpireDate" class="form-label">过期日期</label>
+              <input type="date" class="form-control" id="editPackageExpireDate">
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">状态</label>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="editPackageStatus" id="editPackageStatusActive" value="active">
+              <label class="form-check-label" for="editPackageStatusActive">
+                活跃
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="editPackageStatus" id="editPackageStatusExpired" value="expired">
+              <label class="form-check-label" for="editPackageStatusExpired">
+                已过期
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="editPackageStatus" id="editPackageStatusUsed" value="used">
+              <label class="form-check-label" for="editPackageStatusUsed">
+                已用完
+              </label>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="editPackageNotes" class="form-label">备注</label>
+            <textarea class="form-control" id="editPackageNotes" rows="3"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-primary" id="savePackageBtn">保存</button>
+      </div>
+    </div>
+  </div>
+</div> 

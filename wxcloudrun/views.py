@@ -927,15 +927,23 @@ def get_all_packages_api():
         # 获取状态筛选参数
         status = request.args.get('status', 'all')
         
-        # 构建查询
-        packages_query = get_all_course_packages()
+        # 构建查询 - get_all_course_packages() returns a list, not a query
+        all_packages = get_all_course_packages()
         
-        # 执行查询，获取总数和分页数据
-        total_count = packages_query.count()
+        # 应用状态筛选，如果需要
+        if status != 'all':
+            filtered_packages = [package for package in all_packages if package.status == status]
+        else:
+            filtered_packages = all_packages
+        
+        # 计算总数
+        total_count = len(filtered_packages)
         total_pages = (total_count + per_page - 1) // per_page
         
-        # 分页
-        packages = packages_query.offset((page - 1) * per_page).limit(per_page).all()
+        # 手动分页
+        start_index = (page - 1) * per_page
+        end_index = min(start_index + per_page, total_count)
+        packages = filtered_packages[start_index:end_index]
         
         # 转换为JSON格式
         result = []
