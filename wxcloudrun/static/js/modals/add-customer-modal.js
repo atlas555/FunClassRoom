@@ -14,32 +14,6 @@ const AddCustomerModal = {
     
     // 设置默认日期为今天
     DateFormatterUtils.setInputToToday('birthdate');
-    
-    // 绑定"添加客户"按钮点击事件
-    $('#openAddCustomerModalBtn').on('click', this.loadCoursePackages.bind(this));
-  },
-  
-  // 加载课时包列表
-  loadCoursePackages: function() {
-    const $select = $('#coursePackageSelect');
-    $select.html('<option value="">正在加载课时包...</option>');
-    
-    StudentAPI.getCoursePackages()
-      .then(packages => {
-        if (packages.length === 0) {
-          $select.html('<option value="">暂无可用的课时包</option>');
-        } else {
-          $select.empty();
-          $select.append('<option value="">请选择课时包</option>');
-          packages.forEach(pkg => {
-            $select.append(`<option value="${pkg.id}">${pkg.name} (${pkg.totalHours}课时)</option>`);
-          });
-        }
-      })
-      .catch(error => {
-        $select.html('<option value="">加载失败，请重试</option>');
-        console.error('加载课时包失败:', error);
-      });
   },
   
   // 添加客户
@@ -52,10 +26,6 @@ const AddCustomerModal = {
     const address = $('#address').val().trim();
     const notes = $('#notes').val().trim();
     const status = $('input[name="status"]:checked').val() || 'active';
-    
-    // 获取课时包相关数据
-    const packageSelect = $('#coursePackageSelect');
-    const packageId = packageSelect.val();
     
     // 验证必填字段
     if (!name) {
@@ -78,29 +48,6 @@ const AddCustomerModal = {
       notes: notes,
       status: status
     };
-    
-    let totalHours = 0;
-    
-    // 判断是否使用默认课时包
-    if (!packageId || packageId === "default") {
-      // 使用默认课时包，10课时
-      totalHours = 10;
-    } else {
-      // 使用选定的课时包，课时数从包中获取
-      const selectedOption = packageSelect.find('option:selected');
-      const packageText = selectedOption.text();
-      const hoursMatch = packageText.match(/\((\d+)课时\)/);
-      
-      if (hoursMatch && hoursMatch[1]) {
-        totalHours = parseInt(hoursMatch[1]);
-      } else {
-        totalHours = 10; // 默认10课时
-      }
-    }
-    
-    // 添加课时包相关字段
-    studentData.packageTotalHours = totalHours;
-    studentData.packagePurchaseDate = DateFormatterUtils.getTodayFormatted();
     
     // 调用API添加学生
     StudentAPI.addStudent(studentData)

@@ -1,123 +1,90 @@
-# wxcloudrun-flask
-[![GitHub license](https://img.shields.io/github/license/WeixinCloud/wxcloudrun-express)](https://github.com/WeixinCloud/wxcloudrun-express)
-![GitHub package.json dependency version (prod)](https://img.shields.io/badge/python-3.7.3-green)
+# FunClassRoom
 
-微信云托管 python Flask 框架模版，实现简单的计数器读写接口，使用云托管 MySQL 读写、记录计数值。
+客户管理系统 (CRM) - 课程管理和客户管理应用
 
-![](https://qcloudimg.tencent-cloud.cn/raw/be22992d297d1b9a1a5365e606276781.png)
+## 项目结构
 
-
-## 快速开始
-前往 [微信云托管快速开始页面](https://developers.weixin.qq.com/miniprogram/dev/wxcloudrun/src/basic/guide.html)，选择相应语言的模板，根据引导完成部署。
-
-## 本地调试
-下载代码在本地调试，请参考[微信云托管本地调试指南](https://developers.weixin.qq.com/miniprogram/dev/wxcloudrun/src/guide/debug/)
-
-## 实时开发
-代码变动时，不需要重新构建和启动容器，即可查看变动后的效果。请参考[微信云托管实时开发指南](https://developers.weixin.qq.com/miniprogram/dev/wxcloudrun/src/guide/debug/dev.html)
-
-## Dockerfile最佳实践
-请参考[如何提高项目构建效率](https://developers.weixin.qq.com/miniprogram/dev/wxcloudrun/src/scene/build/speed.html)
-
-## 目录结构说明
-
-~~~
-.
-├── Dockerfile dockerfile       dockerfile
-├── README.md README.md         README.md文件
-├── container.config.json       模板部署「服务设置」初始化配置（二开请忽略）
-├── requirements.txt            依赖包文件
-├── config.py                   项目的总配置文件  里面包含数据库 web应用 日志等各种配置
-├── run.py                      flask项目管理文件 与项目进行交互的命令行工具集的入口
-└── wxcloudrun                  app目录
-    ├── __init__.py             python项目必带  模块化思想
-    ├── dao.py                  数据库访问模块
-    ├── model.py                数据库对应的模型
-    ├── response.py             响应结构构造
-    ├── templates               模版目录,包含主页index.html文件
-    └── views.py                执行响应的代码所在模块  代码逻辑处理主要地点  项目大部分代码在此编写
-~~~
-
-
-
-## 服务 API 文档
-
-### `GET /api/count`
-
-获取当前计数
-
-#### 请求参数
-
-无
-
-#### 响应结果
-
-- `code`：错误码
-- `data`：当前计数值
-
-##### 响应结果示例
-
-```json
-{
-  "code": 0,
-  "data": 42
-}
-```
-
-#### 调用示例
+项目采用模块化的蓝图 (Blueprint) 结构，按业务功能划分为以下几个模块：
 
 ```
-curl https://<云托管服务域名>/api/count
+wxcloudrun/
+├── __init__.py              # 应用工厂和初始化
+├── model.py                 # 数据库模型
+├── dao.py                   # 数据访问对象
+├── response.py              # 通用响应格式工具
+├── blueprints/              # 蓝图模块
+│   ├── __init__.py          # 蓝图注册
+│   ├── auth/                # 认证模块
+│   │   ├── __init__.py
+│   │   └── routes.py        # 认证和用户管理相关路由
+│   ├── students/            # 学生/客户管理模块
+│   │   ├── __init__.py
+│   │   └── routes.py        # 学生/客户管理相关路由
+│   ├── packages/            # 课时包管理模块
+│   │   ├── __init__.py
+│   │   └── routes.py        # 课时包管理相关路由
+│   ├── records/             # 课程记录管理模块
+│   │   ├── __init__.py
+│   │   └── routes.py        # 课程和消费记录相关路由
+│   └── wechat/              # 微信集成模块
+│       ├── __init__.py
+│       └── routes.py        # 微信API相关路由
+├── static/                  # 静态资源
+│   ├── css/
+│   ├── js/
+│   └── img/
+└── templates/               # 模板文件
+    ├── includes/            # 包含文件
+    └── modals/              # 模态框组件
 ```
 
+## 模块说明
 
+1. **认证模块 (auth)**：
+   - 用户登录、注销
+   - 用户管理（添加、删除、修改密码）
 
-### `POST /api/count`
+2. **学生/客户管理模块 (students)**：
+   - 学生/客户信息的CRUD操作
+   - 学生/客户列表显示和筛选
 
-更新计数，自增或者清零
+3. **课时包管理模块 (packages)**：
+   - 课时包的CRUD操作
+   - 课时包模板管理
 
-#### 请求参数
+4. **课程记录管理模块 (records)**：
+   - 上课记录管理
+   - 课时消耗记录管理
 
-- `action`：`string` 类型，枚举值
-  - 等于 `"inc"` 时，表示计数加一
-  - 等于 `"clear"` 时，表示计数重置（清零）
+5. **微信集成模块 (wechat)**：
+   - 微信相关API集成
+   - 消息推送
 
-##### 请求参数示例
+## 技术栈
 
-```
-{
-  "action": "inc"
-}
-```
+- 后端: Flask, SQLAlchemy
+- 前端: Bootstrap, jQuery
+- 数据库: MySQL
 
-#### 响应结果
+## 运行方式
 
-- `code`：错误码
-- `data`：当前计数值
+本地开发环境：
 
-##### 响应结果示例
-
-```json
-{
-  "code": 0,
-  "data": 42
-}
-```
-
-#### 调用示例
-
-```
-curl -X POST -H 'content-type: application/json' -d '{"action": "inc"}' https://<云托管服务域名>/api/count
+```bash
+python run.py
 ```
 
-## 使用注意
-如果不是通过微信云托管控制台部署模板代码，而是自行复制/下载模板代码后，手动新建一个服务并部署，需要在「服务设置」中补全以下环境变量，才可正常使用，否则会引发无法连接数据库，进而导致部署失败。
-- MYSQL_ADDRESS
-- MYSQL_PASSWORD
-- MYSQL_USERNAME
-以上三个变量的值请按实际情况填写。如果使用云托管内MySQL，可以在控制台MySQL页面获取相关信息。
+生产环境:
 
+```bash
+# 设置环境变量
+export HOST=0.0.0.0
+export PORT=80
+export DEBUG=False
 
+# 运行应用
+python run.py
+```
 
 ## License
 

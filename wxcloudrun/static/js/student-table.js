@@ -60,29 +60,29 @@ const StudentTable = {
     // 获取学生数据
     StudentAPI.getAllStudents(this.state.currentPage, this.state.perPage, this.state.status)
       .then(response => {
-        // 渲染学生表格
-        this.renderTable(response.data.items);
+          // 渲染学生表格
+          this.renderTable(response.data.items);
+          
+          // 更新分页控件
+          this.updatePagination(response.data.pagination);
         
-        // 更新分页控件
-        this.updatePagination(response.data.pagination);
-        
-        // 更新总记录数显示
-        $('#totalRecords').text(`共 ${response.data.pagination.total} 条记录`);
-        
-        // 如果没有记录，显示空状态
-        if (response.data.items.length === 0) {
-          $('#studentsTable tbody').html(`
-            <tr>
-              <td colspan="9" class="text-center py-4">
-                <div class="empty-state">
-                  <i class="bi bi-people" style="font-size: 2rem; opacity: 0.5;"></i>
-                  <p class="mt-2">暂无客户记录</p>
-                </div>
-              </td>
-            </tr>
-          `);
-        }
-      })
+          // 更新总记录数显示
+          $('#totalRecords').text(response.data.pagination.total);
+          
+          // 如果没有记录，显示空状态
+          if (response.data.items.length === 0) {
+            $('#studentsTable tbody').html(`
+              <tr>
+                <td colspan="9" class="text-center py-4">
+                  <div class="empty-state">
+                    <i class="bi bi-people" style="font-size: 2rem; opacity: 0.5;"></i>
+                    <p class="mt-2">暂无客户记录</p>
+                  </div>
+                </td>
+              </tr>
+            `);
+          }
+        })
       .catch(error => {
         // 显示错误信息
         NotificationUtils.clearLoading('#studentsTable tbody');
@@ -104,7 +104,7 @@ const StudentTable = {
     const $tableBody = $('#studentsTable tbody');
     $tableBody.empty();
     
-    console.log("students:"+students);
+    console.log("students:" + JSON.stringify(students, null, 2));
 
     students.forEach(student => {
       // 确定状态文本和类名
@@ -128,23 +128,20 @@ const StudentTable = {
           <th scope="row">${student.id}</th>
           <td>${student.name}</td>
           <td>${student.phone || '-'}</td>
-          <td>${student.remainingHours}</td>
-          <td>${student.usedHours}</td>
           <td>${DateFormatterUtils.formatDate(student.registerDate)}</td>
-          <td>${student.lastClassDate ? DateFormatterUtils.formatDate(student.lastClassDate) : '-'}</td>
           <td><span class="${statusClass}">${statusText}</span></td>
           <td>
             <div class="btn-group" role="group" aria-label="操作按钮">
-              <button type="button" class="btn btn-sm btn-edit-personal btn-outline-primary" title="编辑个人信息" aria-label="编辑个人信息">
+              <button type="button" class="btn btn-sm btn-edit-personal btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="编辑个人信息" aria-label="编辑个人信息">
                 <i class="bi bi-person-gear"></i>
               </button>
-              <button type="button" class="btn btn-sm btn-add-class-record btn-outline-success" title="录入上课记录" aria-label="录入上课记录">
+              <button type="button" class="btn btn-sm btn-add-class-record btn-outline-success" data-bs-toggle="tooltip" data-bs-placement="top" title="录入上课记录" aria-label="录入上课记录">
                 <i class="bi bi-journal-plus"></i>
               </button>
-              <button type="button" class="btn btn-sm btn-course-consumption btn-outline-warning" title="课消记录" aria-label="课消记录">
+              <button type="button" class="btn btn-sm btn-course-consumption btn-outline-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="课消记录" aria-label="课消记录">
                 <i class="bi bi-clock-history"></i>
               </button>
-              <button type="button" class="btn btn-sm btn-delete-student btn-outline-danger" title="删除客户" aria-label="删除客户">
+              <button type="button" class="btn btn-sm btn-delete-student btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="删除客户" aria-label="删除客户">
                 <i class="bi bi-trash"></i>
               </button>
             </div>
@@ -155,6 +152,9 @@ const StudentTable = {
       // 添加到表格
       $tableBody.append($row);
     });
+    
+    // 初始化工具提示
+    $('[data-bs-toggle="tooltip"]').tooltip();
     
     // 清除加载指示器
     NotificationUtils.clearLoading('#studentsTable tbody');
@@ -222,43 +222,89 @@ const StudentTable = {
   
   // 处理编辑个人信息
   handleEditPersonal: function(event) {
-    const $button = $(event.currentTarget);
-    const $row = $button.closest('tr');
-    const studentId = parseInt($row.attr('data-id'));
+    // const $button = $(event.currentTarget);
+    // const $row = $button.closest('tr');
+    // const studentId = parseInt($row.attr('data-id'));
+    // const studentName = $row.find('td:eq(1)').text();  // 假设姓名在第二列
     
-    // 显示编辑个人信息模态框
-    $('#editPersonalModal').modal('show');
+    // console.log(`正在加载学生信息，ID: ${studentId}, 姓名: ${studentName}`);
     
-    // 显示加载指示器
-    NotificationUtils.showLoading('#editPersonalModal .modal-body', '加载客户信息中...');
+    // 确保模态框元素存在
+    const $modal = $('#editPersonalModal');
+    // if ($modal.length === 0) {
+    //   console.error('模态框元素未找到');
+    //   NotificationUtils.showAlert('danger', '系统错误: 模态框元素未找到');
+    //   return;
+    // }
+
+    // 在显示模态框之前进行重置
+    try {
+      // 清空表单数据，避免显示旧数据
+      // $('#editPersonalId').val('');
+      // $('#editPersonalName').val('');
+      // $('#editPersonalPhone').val('');
+      // $('#editPersonalEmail').val('');
+      // $('#editPersonalBirthdate').val('');
+      // $('#editPersonalAddress').val('');
+      // $('#editPersonalNotes').val('');
+      // $('input[name="editPersonalStatus"]').prop('checked', false);
+      
+      // 先显示一个加载指示器在模态框标题中
+      // $modal.find('.modal-title').html(`编辑客户信息: <small class="text-muted">${studentName}</small> <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>`);
     
-    // 加载学生数据
-    StudentAPI.getStudent(studentId)
-      .then(response => {
-        // 填充表单数据
-        const student = response.data;
-        $('#editPersonalId').val(student.id);
-        $('#editPersonalName').val(student.name);
-        $('#editPersonalPhone').val(student.phone);
-        $('#editPersonalEmail').val(student.email);
-        $('#editPersonalBirthdate').val(student.birthdate);
-        $('#editPersonalAddress').val(student.address);
-        $('#editPersonalNotes').val(student.notes);
+      // 在DOM加载完毕后再显示模态框
+      $(document).ready(function() {
+        $modal.modal('show');
         
-        // 设置状态单选按钮
-        $(`input[name="editPersonalStatus"][value="${student.status}"]`).prop('checked', true);
+        // 只有在模态框显示后才加载数据
+        $modal.on('shown.bs.modal', function() {
+          // 显示加载指示器
+          NotificationUtils.showLoading('#editPersonalModal .modal-body', '加载客户信息中...');
+          
+          // 加载学生数据
+          StudentAPI.getStudent(studentId)
+            .then(response => {
+              // 填充表单数据
+              try {
+                const student = response.data;
+                console.log("student:" + JSON.stringify(student, null, 2));
+                $('#editPersonalId').val(student.id);
+                $('#editPersonalName').val(student.name);
+                $('#editPersonalPhone').val(student.phone || '');
+                $('#editPersonalEmail').val(student.email || '');
+                $('#editPersonalBirthdate').val(student.birthdate || '');
+                $('#editPersonalAddress').val(student.address || '');
+                $('#editPersonalNotes').val(student.notes || '');
+                
+                // 设置状态单选按钮
+                $(`input[name="editPersonalStatus"][value="${student.status || 'active'}"]`).prop('checked', true);
+                
+                // 更新模态框标题
+                $modal.find('.modal-title').text(`编辑客户信息: ${student.name}`);
+                
+                // 清除加载指示器
+                NotificationUtils.clearLoading('#editPersonalModal .modal-body');
+              } catch (e) {
+                console.error('填充表单数据时出错:', e);
+                NotificationUtils.clearLoading('#editPersonalModal .modal-body');
+                NotificationUtils.showAlert('danger', '填充表单数据时出错');
+              }
+            })
+            .catch(error => {
+              // 显示错误信息
+              console.error('加载客户信息失败:', error);
+              NotificationUtils.clearLoading('#editPersonalModal .modal-body');
+              NotificationUtils.showAlert('danger', `加载客户信息失败: ${error.message}`);
+            });
+        });
         
-        // 清除加载指示器
-        NotificationUtils.clearLoading('#editPersonalModal .modal-body');
-      })
-      .catch(error => {
-        // 显示错误信息
-        NotificationUtils.clearLoading('#editPersonalModal .modal-body');
-        NotificationUtils.showAlert('danger', `加载客户信息失败: ${error.message}`);
-        
-        // 关闭模态框
-        $('#editPersonalModal').modal('hide');
+        // 移除事件监听器，避免重复加载
+        $modal.off('shown.bs.modal');
       });
+    } catch (e) {
+      console.error('准备模态框时出错:', e);
+      NotificationUtils.showAlert('danger', '系统错误: 准备模态框时出错');
+    }
   },
   
   // 处理录入上课记录

@@ -4,7 +4,7 @@ from sqlalchemy.exc import OperationalError
 from sqlalchemy import func
 
 from wxcloudrun import db
-from wxcloudrun.model import Student, ClassRecord, ConsumptionRecord, User, CoursePackage, StudentCoursePackage
+from wxcloudrun.model import Student, ClassRecord, User, CoursePackage, StudentCoursePackage
 
 # 初始化日志
 logger = logging.getLogger('log')
@@ -338,86 +338,6 @@ def get_active_course_packages(student_id):
         logger.info(f"get_active_course_packages errorMsg= {e}")
         return []
 
-def get_package_by_id(package_id):
-    """
-    根据ID获取课时包
-    :param package_id: 课时包ID
-    :return: 课时包信息
-    """
-    try:
-        return StudentCoursePackage.query.get(package_id)
-    except OperationalError as e:
-        logger.info(f"get_package_by_id errorMsg= {e}")
-        return None
-
-def add_course_package(package_data):
-    """
-    添加新学生课时包
-    :param package_data: 课时包数据字典
-    :return: 新添加的课时包
-    """
-    try:
-        # 获取基础课时包
-        course_package_id = package_data.get('course_package_id')
-        course_package = CoursePackage.query.get(course_package_id)
-        if not course_package:
-            raise Exception(f"基础课时包 (ID: {course_package_id}) 不存在")
-        
-        # 计算剩余课时
-        total_hours = course_package.total_hours
-        used_hours = package_data.get('used_hours', 0)
-        remaining_hours = total_hours - used_hours
-        
-        # 处理日期格式
-        purchase_date = datetime.now().date()
-        if package_data.get('purchase_date'):
-            try:
-                purchase_date = datetime.strptime(package_data.get('purchase_date'), '%Y-%m-%d').date()
-            except ValueError:
-                logger.warning(f"Invalid purchase_date format: {package_data.get('purchase_date')}")
-        
-        expire_date = None
-        if package_data.get('expire_date'):
-            try:
-                expire_date = datetime.strptime(package_data.get('expire_date'), '%Y-%m-%d').date()
-            except ValueError:
-                logger.warning(f"Invalid expire_date format: {package_data.get('expire_date')}")
-        
-        # 创建学生课时包对象
-        package = StudentCoursePackage(
-            student_id=package_data.get('student_id'),
-            course_package_id=course_package_id,
-            used_hours=used_hours,
-            remaining_hours=remaining_hours,
-            purchase_date=purchase_date,
-            expire_date=expire_date,
-            status=package_data.get('status', 'active'),
-            notes=package_data.get('notes')
-        )
-        db.session.add(package)
-        
-        # 更新学生的总课时信息
-        student_id = package_data.get('student_id')
-        if student_id:
-            student = Student.query.get(student_id)
-            if student:
-                # 更新总课时、已用课时和剩余课时
-                student.total_hours += total_hours
-                student.used_hours += used_hours
-                student.remaining_hours += remaining_hours
-                student.updated_at = datetime.now()
-        
-        db.session.commit()
-        return package
-    except OperationalError as e:
-        logger.info(f"add_course_package errorMsg= {e}")
-        db.session.rollback()
-        return None
-    except Exception as e:
-        logger.error(f"add_course_package error: {e}")
-        db.session.rollback()
-        return None
-
 def update_course_package(package_id, package_data):
     """
     更新学生课时包信息
@@ -501,22 +421,9 @@ def delete_course_package(package_id):
     """
     try:
         # 获取学生课时包
-        package = StudentCoursePackage.query.get(package_id)
+        package = CoursePackage.query.get(package_id)
         if not package:
             return False
-        
-        # 获取基础课时包
-        course_package = CoursePackage.query.get(package.course_package_id)
-        total_hours = course_package.total_hours if course_package else 0
-        
-        # 更新学生的总课时信息
-        student = Student.query.get(package.student_id)
-        if student:
-            student.total_hours -= total_hours
-            student.used_hours -= package.used_hours
-            student.remaining_hours -= package.remaining_hours
-            student.updated_at = datetime.now()
-        
         db.session.delete(package)
         db.session.commit()
         return True
@@ -577,7 +484,7 @@ def get_all_course_packages():
         logger.info(f"get_all_course_packages errorMsg= {e}")
         return []
 
-def add_course_package_base(package_data):
+def add_course_package(package_data):
     """
     添加新基础课时包
     :param package_data: 课时包数据字典
@@ -635,7 +542,7 @@ def get_package_by_id(package_id):
     :return: 课时包信息
     """
     try:
-        return StudentCoursePackage.query.get(package_id)
+        return CoursePackage.query.get(package_id)
     except OperationalError as e:
         logger.info(f"get_package_by_id errorMsg= {e}")
         return None

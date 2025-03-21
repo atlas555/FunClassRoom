@@ -24,10 +24,6 @@ body {
   font-weight: 600;
 }
 
-.table th {
-  background-color: #f8f9fa;
-}
-
 .form-container {
   max-width: 800px;
   margin: 0 auto;
@@ -54,6 +50,20 @@ body {
   overflow-x: auto;
 }
 
+/* 表格相关样式 */
+.table th {
+  background-color: #f8f9fa;
+  white-space: nowrap;
+}
+
+/* 操作列样式 */
+.table td:last-child {
+  white-space: nowrap;
+  padding: 0.5rem 0.75rem;
+  width: 1%;
+  min-width: 145px;
+}
+
 .status-active {
   color: #198754;
   font-weight: 500;
@@ -77,22 +87,45 @@ body {
 /* 按钮组样式 */
 .btn-group {
   display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
+  flex-wrap: nowrap;
+  gap: 3px;
 }
 
 .btn-group .btn {
-  flex: 1;
+  flex: 0 0 auto;
   white-space: nowrap;
-  min-width: 40px;
-  padding: 0.25rem 0.5rem;
+  min-width: 32px;
+  max-width: 32px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-group .btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .btn-group .btn i {
-  font-size: 1rem;
-  display: inline-block;
-  width: 100%;
-  text-align: center;
+  font-size: 0.875rem;
+  line-height: 1;
+}
+
+/* 移动端样式优化 */
+@media (max-width: 768px) {
+  .btn-group .btn {
+    min-width: 28px;
+    max-width: 28px;
+    height: 28px;
+  }
+  
+  .btn-group .btn i {
+    font-size: 0.8rem;
+  }
 }
 
 #statusFilter {

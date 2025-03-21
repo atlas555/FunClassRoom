@@ -1,67 +1,62 @@
+<!-- 编辑客户信息模态框 -->
 <div class="modal fade" id="editPersonalModal" tabindex="-1" aria-labelledby="editPersonalModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="editPersonalModalLabel">编辑客户信息</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
       </div>
       <div class="modal-body">
         <form id="editPersonalForm">
-          <input type="hidden" id="editId">
+          <input type="hidden" id="editPersonalId">
           <div class="row mb-3">
             <div class="col-md-6">
-              <label for="editName" class="form-label">姓名 <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="editName" required>
+              <label for="editPersonalName" class="form-label">姓名 <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="editPersonalName" required>
             </div>
             <div class="col-md-6">
-              <label for="editPhone" class="form-label">联系电话</label>
-              <input type="tel" class="form-control" id="editPhone">
+              <label for="editPersonalPhone" class="form-label">联系电话</label>
+              <input type="tel" class="form-control" id="editPersonalPhone">
             </div>
           </div>
           
           <div class="row mb-3">
             <div class="col-md-6">
-              <label for="editEmail" class="form-label">电子邮箱</label>
-              <input type="email" class="form-control" id="editEmail">
+              <label for="editPersonalEmail" class="form-label">电子邮箱</label>
+              <input type="email" class="form-control" id="editPersonalEmail">
             </div>
             <div class="col-md-6">
-              <label for="editBirthdate" class="form-label">出生日期</label>
-              <input type="date" class="form-control" id="editBirthdate">
+              <label for="editPersonalBirthdate" class="form-label">出生日期</label>
+              <input type="date" class="form-control" id="editPersonalBirthdate">
             </div>
-          </div>
-          
-          <!-- 替换课时字段为提示信息 -->
-          <div class="alert alert-info mb-3">
-            <i class="bi bi-info-circle-fill me-2"></i>
-            课时信息管理已迁移至课时包功能，请使用课消记录按钮来管理课时包和课时消耗。
           </div>
           
           <div class="mb-3">
-            <label for="editAddress" class="form-label">地址</label>
-            <input type="text" class="form-control" id="editAddress">
+            <label for="editPersonalAddress" class="form-label">地址</label>
+            <input type="text" class="form-control" id="editPersonalAddress">
           </div>
           
           <div class="mb-3">
-            <label for="editNotes" class="form-label">备注</label>
-            <textarea class="form-control" id="editNotes" rows="3"></textarea>
+            <label for="editPersonalNotes" class="form-label">备注</label>
+            <textarea class="form-control" id="editPersonalNotes" rows="3"></textarea>
           </div>
           
           <div class="mb-3">
             <label class="form-label">客户状态</label>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="editStatus" id="editStatusActive" value="active">
+              <input class="form-check-input" type="radio" name="editPersonalStatus" id="editStatusActive" value="active">
               <label class="form-check-label" for="editStatusActive">
                 活跃
               </label>
             </div>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="editStatus" id="editStatusInactive" value="inactive">
+              <input class="form-check-input" type="radio" name="editPersonalStatus" id="editStatusInactive" value="inactive">
               <label class="form-check-label" for="editStatusInactive">
                 已结课
               </label>
             </div>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="editStatus" id="editStatusNew" value="new">
+              <input class="form-check-input" type="radio" name="editPersonalStatus" id="editStatusNew" value="new">
               <label class="form-check-label" for="editStatusNew">
                 新客户
               </label>

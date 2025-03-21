@@ -19,9 +19,9 @@
       <div>
         {% if current_user.is_authenticated %}
         {% if current_user.username == 'admin' %}
-        <a href="{{ url_for('admin') }}" class="btn btn-outline-primary me-2">用户管理</a>
+        <a href="{{ url_for('auth.admin') }}" class="btn btn-outline-primary me-2">用户管理</a>
         {% endif %}
-        <a href="{{ url_for('logout') }}" class="btn btn-outline-secondary">退出登录</a>
+        <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-secondary">退出登录</a>
         {% endif %}
       </div>
     </div>

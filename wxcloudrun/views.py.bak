@@ -207,7 +207,6 @@ def api_add_student():
             return make_err_response('添加学生失败')
             
         # 如果提供了课时包ID，为新学生关联课时包
-        package = None
         if 'coursePackageId' in data and data['coursePackageId']:
             course_package = CoursePackage.query.get(data['coursePackageId'])
             if course_package:
@@ -223,19 +222,13 @@ def api_add_student():
                     notes=''
                 )
                 db.session.add(student_package)
+                
+                # 直接更新学生的课时信息
+                student.total_hours = course_package.total_hours
+                student.used_hours = 0
+                student.remaining_hours = course_package.total_hours
+                
                 db.session.commit()
-                package = student_package
-        
-        # 计算课时信息
-        total_hours = 0
-        used_hours = 0
-        remaining_hours = 0
-        
-        if package:
-            course_package = CoursePackage.query.get(package.course_package_id)
-            total_hours = course_package.total_hours
-            used_hours = package.used_hours
-            remaining_hours = package.remaining_hours
             
         # 转换为JSON格式
         result = {
@@ -244,9 +237,9 @@ def api_add_student():
             'phone': student.phone or '',
             'email': student.email or '',
             'birthdate': student.birthdate.strftime('%Y-%m-%d') if student.birthdate else '',
-            'remainingHours': remaining_hours,
-            'usedHours': used_hours,
-            'totalHours': total_hours,
+            'remainingHours': student.remaining_hours,
+            'usedHours': student.used_hours,
+            'totalHours': student.total_hours,
             'registerDate': student.register_date.strftime('%Y-%m-%d') if student.register_date else datetime.now().strftime('%Y-%m-%d'),
             'lastClassDate': student.last_class_date.strftime('%Y-%m-%d') if student.last_class_date else '',
             'address': student.address or '',
@@ -1127,15 +1120,23 @@ def recalculate_student_hours_api(student_id):
                 used_hours += package.used_hours
                 remaining_hours += package.remaining_hours
         
-        # 返回更新后的课时信息
-        result = {
-            'id': student.id,
-            'totalHours': total_hours,
-            'usedHours': used_hours,
-            'remainingHours': remaining_hours
-        }
+        # 更新学生记录
+        student.total_hours = total_hours
+        student.used_hours = used_hours
+        student.remaining_hours = remaining_hours
+        student.updated_at = datetime.now()
         
-        return make_succ_response(result)
+        db.session.commit()
+        
+        # 返回更新后的数据
+        return make_succ_response({
+            'id': student.id,
+            'name': student.name,
+            'totalHours': student.total_hours,
+            'usedHours': student.used_hours,
+            'remainingHours': student.remaining_hours
+        })
     except Exception as e:
-        return make_err_response(f"重新计算课时失败: {str(e)}")
+        db.session.rollback()
+        return make_err_response(f'重新计算课时失败: {str(e)}')
 

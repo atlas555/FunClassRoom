@@ -55,7 +55,7 @@ const StudentAPI = {
   // 获取所有学生，支持分页和状态筛选
   getAllStudents: (page = 1, perPage = 10, status = 'all') => {
     const url = `${API_BASE_URL}/students?page=${page}&per_page=${perPage}${status !== 'all' ? `&status=${status}` : ''}`;
-    return handleApiRequest(url);
+    return  handleApiRequest(url);
   },
   
   // 获取单个学生信息
@@ -127,7 +127,7 @@ const StudentAPI = {
   
   // 获取学生的课时消耗记录
   getStudentConsumptionRecords: (studentId, packageId = null) => {
-    let url = `${API_BASE_URL}/students/${studentId}/consumption`;
+    let url = `${API_BASE_URL}/students/${studentId}/consumption-records`;
     if (packageId) {
       url += `?package_id=${packageId}`;
     }
@@ -136,7 +136,7 @@ const StudentAPI = {
   
   // 添加课时消耗记录
   addConsumptionRecord: (consumptionData) => {
-    return handleApiRequest(`${API_BASE_URL}/consumption`, {
+    return handleApiRequest(`${API_BASE_URL}/consumption-records`, {
       method: 'POST',
       body: JSON.stringify(consumptionData)
     });

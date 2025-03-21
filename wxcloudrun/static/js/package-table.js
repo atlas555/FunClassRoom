@@ -123,11 +123,11 @@ const PackageTable = {
           <td>${pkg.totalHours}</td>
           <td><span class="${statusClass}">${statusText}</span></td>
           <td>
-            <div class="btn-group" role="group">
-              <button type="button" class="btn btn-sm btn-edit-package btn-outline-primary" title="编辑课时包">
+            <div class="btn-group" role="group" aria-label="操作按钮">
+              <button type="button" class="btn btn-sm btn-edit-package btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="编辑课时包" aria-label="编辑课时包">
                 <i class="bi bi-pencil-square"></i>
               </button>
-              <button type="button" class="btn btn-sm btn-delete-package btn-outline-danger" title="删除">
+              <button type="button" class="btn btn-sm btn-delete-package btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="删除" aria-label="删除课时包">
                 <i class="bi bi-trash"></i>
               </button>
             </div>
@@ -139,6 +139,9 @@ const PackageTable = {
       $tableBody.append($row);
     });
     
+    // 初始化工具提示
+    $('[data-bs-toggle="tooltip"]').tooltip();
+    
     // 清除加载指示器
     NotificationUtils.clearLoading('#packagesTable tbody');
   },
@@ -148,7 +151,7 @@ const PackageTable = {
     // 使用通用分页工具更新分页控件
     PaginationUtils.updatePagination(
       pagination,
-      '.pagination-packages-container',
+      '.pagination-packages',
       (page) => {
         this.state.currentPage = page;
         this.loadData();
@@ -161,7 +164,7 @@ const PackageTable = {
     const $button = $(event.currentTarget);
     const $row = $button.closest('tr');
     const packageId = parseInt($row.attr('data-id'));
-    
+
     // 显示确认对话框
     if (confirm(`确定要删除课时包吗？此操作不可撤销，相关的课消记录也将被删除。`)) {
       // 禁用按钮并显示加载状态
